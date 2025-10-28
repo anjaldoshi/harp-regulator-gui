@@ -1,0 +1,51 @@
+[project]
+name = "harp-regulator-gui"
+version = "0.1.0"
+description = "A GUI for managing Harp devices and updating firmware."
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.9,<4.0"
+dependencies = [
+    "nicegui>=2.5.0",
+    "pydantic>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-mock>=3.12.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[project.scripts]
+harp-regulator-gui = "harp_regulator_gui.main:start_app"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/harp-regulator-gui"
+Documentation = "https://github.com/yourusername/harp-regulator-gui#readme"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/harp_regulator_gui"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/harp_regulator_gui/static" = "harp_regulator_gui/static"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-mock>=3.12.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
