@@ -1,4 +1,4 @@
-from nicegui import ui
+from nicegui import ui, app
 from typing import Optional, Callable
 from pathlib import Path
 from harp_regulator_gui.models.device import Device
@@ -97,25 +97,48 @@ class FirmwareBrowser:
     
     async def browse_firmware(self):
         """Open file picker to browse for firmware file"""
-        # NiceGUI file upload
-        result = await ui.run_javascript('''
-            new Promise((resolve) => {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.uf2,.hex';
-                input.onchange = (e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                        resolve(file.name);
-                    } else {
-                        resolve(null);
-                    }
-                };
-                input.click();
-            })
-        ''')
+        # Prefer native dialog when available (native mode)
+        if app.native.main_window:
+            try:
+                paths = await app.native.main_window.create_file_dialog(
+                    allow_multiple=False,
+                    file_types=['Firmware files (*.uf2;*.hex)'],
+                )
+            except Exception:
+                ui.notify('Unable to open native file dialog. Falling back to browser picker.', type='warning')
+            else:
+                if paths:
+                    selected_path = paths[0]
+                    self.firmware_file_path = selected_path
+                    self.file_path_label.set_text(selected_path)
+                    self.deploy_button.set_enabled(True)
+                    ui.notify(f'Selected: {selected_path}', type='info')
+                return
+
+        # Browser-based picker fallback
+        try:
+            result = await ui.run_javascript('''
+                new Promise((resolve) => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.uf2,.hex';
+                    input.onchange = (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            resolve(file.name);
+                        } else {
+                            resolve(null);
+                        }
+                    };
+                    input.click();
+                })
+            ''', timeout=60.0)
+        except TimeoutError:
+            ui.notify('File picker did not respond in time. Please try again.', type='warning')
+            return
         
         if result:
+            self.firmware_file_path = result
             self.file_path_label.set_text(result)
             # In a real implementation, you'd handle the actual file upload here
             ui.notify(f'Selected: {result}', type='info')
@@ -132,6 +155,9 @@ class FirmwareBrowser:
         if not self.selected_device:
             ui.notify('Please select a device first', type='warning')
             return
+        
+        self.firmware_file_path = None
+        self.deploy_button.set_enabled(False)
         
         ui.notify('Firmware download not yet implemented', type='info')
     

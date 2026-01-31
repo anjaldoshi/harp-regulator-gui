@@ -140,7 +140,9 @@ def start_app():
         port=4277,
         dark=None,  # Start in auto mode (respects system preference)
         reload=False,
-        show=True
+        show=True,
+        native=True,
+        window_size=(1200, 1000),
     )
 
 

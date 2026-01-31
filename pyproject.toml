@@ -11,6 +11,7 @@ requires-python = ">=3.9,<4.0"
 dependencies = [
     "nicegui>=2.5.0",
     "pydantic>=2.0.0",
+    "pywebview>=6.1",
 ]
 
 [project.optional-dependencies]
