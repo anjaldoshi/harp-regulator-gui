@@ -26,6 +26,7 @@ class FirmwareBrowser:
         self.firmware_info_container = None
         self.firmware_select = None
         self.deploy_button = None
+        self.force_upload_checkbox = None
     
     def render(self):
         """Render the firmware browser panel"""
@@ -65,10 +66,15 @@ class FirmwareBrowser:
                 self.firmware_info_container = ui.column().classes('gap-2 mt-3')
             
             # Actions
-            with ui.row().classes('firmware-actions gap-2 mt-4'):
-                ui.button('⬇️ Download firmware', on_click=self.download_firmware).classes('btn btn-secondary')
-                self.deploy_button = ui.button('🚀 Deploy firmware', on_click=self.deploy_firmware).classes('btn btn-primary')
-                self.deploy_button.set_enabled(False)
+            with ui.column().classes('gap-3 mt-4'):
+                with ui.row().classes('firmware-actions gap-2'):
+                    ui.button('⬇️ Download firmware', on_click=self.download_firmware).classes('btn btn-secondary')
+                    self.deploy_button = ui.button('🚀 Deploy firmware', on_click=self.deploy_firmware).classes('btn btn-primary')
+                    self.deploy_button.set_enabled(False)
+                
+                # Force upload checkbox
+                self.force_upload_checkbox = ui.checkbox('Force upload (bypass safety checks)').classes('text-sm')
+                self.force_upload_checkbox.set_value(False)
     
     def update_device(self, device: Optional[Device]):
         """
@@ -161,7 +167,7 @@ class FirmwareBrowser:
         
         ui.notify('Firmware download not yet implemented', type='info')
     
-    def deploy_firmware(self):
+    async def deploy_firmware(self):
         """Deploy firmware to device"""
         if not self.selected_device:
             ui.notify('Please select a device first', type='warning')
@@ -171,7 +177,12 @@ class FirmwareBrowser:
             ui.notify('Please select a firmware file or version', type='warning')
             return
         
-        if self.on_deploy:
-            self.on_deploy(self.selected_device, self.firmware_file_path or self.firmware_select.value)
+        # Disable button during deployment
+        self.deploy_button.set_enabled(False)
         
-        ui.notify(f'Deploying firmware to {self.selected_device.display_name}...', type='positive')
+        if self.on_deploy:
+            force = self.force_upload_checkbox.value
+            await self.on_deploy(self.selected_device, self.firmware_file_path or self.firmware_select.value, force)
+        
+        # Re-enable button after deployment
+        self.deploy_button.set_enabled(True)

@@ -46,11 +46,15 @@ class DeviceList:
         # Initial load
         self.refresh_devices()
     
-    def refresh_devices(self):
-        """Refresh device list from device manager"""
+    def refresh_devices(self, allow_connect: bool = True):
+        """Refresh device list from device manager
+        
+        Args:
+            allow_connect: Allow connecting to devices to get full metadata
+        """
         ui.notify('Checking for devices...', type='info')
         try:
-            devices = self.device_manager.refresh_devices()
+            devices = self.device_manager.refresh_devices(allow_connect=allow_connect)
             self.update_device_list()
             ui.notify(f'Found {len(devices)} device(s)', type='positive')
         except Exception as e:
@@ -104,7 +108,6 @@ class DeviceList:
         self.device_manager.select_device(device)
         if self.on_device_select:
             self.on_device_select(device)
-        ui.notify(f'Selected: {device.display_name}', type='info')
     
     def toggle_device_selection(self, device: Device, selected: bool):
         """Toggle device in multi-select"""

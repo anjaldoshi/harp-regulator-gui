@@ -95,7 +95,8 @@ class CLIWrapper:
         force: bool = False,
         no_interactive: bool = True,
         progress: bool = True,
-        no_reboot: bool = False
+        no_reboot: bool = False,
+        verbose: bool = False
     ) -> tuple[bool, str]:
         """
         Upload firmware to a Harp device
@@ -107,7 +108,7 @@ class CLIWrapper:
             no_interactive: Run without user prompts
             progress: Show progress bars
             no_reboot: Don't reboot after upload
-            
+            verbose: Show verbose output
         Returns:
             Tuple of (success: bool, output: str)
         """
@@ -126,7 +127,10 @@ class CLIWrapper:
         
         if no_reboot:
             cmd.append("--no-reboot")
-        
+
+        if verbose:
+            cmd.append("--verbose")
+
         try:
             result = subprocess.run(
                 cmd,

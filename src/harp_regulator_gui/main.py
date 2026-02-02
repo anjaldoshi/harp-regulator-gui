@@ -9,7 +9,7 @@ Built with NiceGUI and integrating with the HarpRegulator CLI tool.
 import os
 import sys
 from pathlib import Path
-from nicegui import ui, app
+from nicegui import ui, app, run
 from harp_regulator_gui.components.header import Header
 from harp_regulator_gui.components.device_list import DeviceList
 from harp_regulator_gui.components.firmware_browser import FirmwareBrowser
@@ -46,27 +46,101 @@ class HarpFirmwareUpdaterApp:
         """
         self.firmware_browser.update_device(device)
     
-    def on_firmware_deploy(self, device: Device, firmware_path: str):
+    async def on_firmware_deploy(self, device: Device, firmware_path: str, force: bool = False):
         """
         Handle firmware deployment
         
         Args:
             device: Target device
             firmware_path: Path to firmware file or version string
+            force: Force upload even if checks fail
         """
-        # Start update workflow
-        self.update_workflow.start_update(device.display_name, firmware_path)
+        # Show loading spinner
+        with ui.dialog() as loading_dialog, ui.card().classes('items-center p-6'):
+            ui.spinner(size='xl', color='primary')
+            ui.label('Uploading firmware...').classes('text-lg mt-4')
+            ui.label('Please wait, do not disconnect the device').classes('text-sm text-secondary mt-2')
         
-        # Simulate update progress (in real implementation, this would monitor the actual upload)
-        self.update_workflow.update_step('validate', 'running', 'In progress')
-        self.update_workflow.add_log(f'Validating firmware for {device.display_name}...')
-        self.update_workflow.set_progress(25)
+        loading_dialog.open()
         
-        # Here you would actually call the device_manager to upload firmware
-        # success, output = self.device_manager.upload_firmware_to_device(device, firmware_path)
-        
-        # For now, just show an info message
-        ui.notify(f'Firmware deployment to {device.display_name} would happen here', type='info')
+        try:
+            # Start update workflow
+            self.update_workflow.start_update(device.display_name, firmware_path)
+            
+            # Close any device connections by refreshing without connecting
+            self.update_workflow.add_log('Closing device connections...')
+            await run.cpu_bound(self.device_manager.refresh_devices, allow_connect=False)
+            
+            # Wait for OS to release port handles
+            await run.io_bound(lambda: __import__('time').sleep(3))
+            
+            # Step 1: Validate firmware file
+            self.update_workflow.add_log(f'Validating firmware file: {firmware_path}')
+            
+            # Validate using firmware service
+            if not self.firmware_service.validate_firmware_file(firmware_path):
+                self.update_workflow.add_log(f'✗ Error: Invalid firmware file')
+                self.update_workflow.show_error(f'Invalid firmware file. Must be .uf2 or .hex format: {firmware_path}')
+                ui.notify('Invalid firmware file', type='negative')
+                return
+            
+            self.update_workflow.add_log(f'✓ Firmware file validated')
+            
+            # Step 2: Flash firmware
+            if force:
+                self.update_workflow.add_log(f'Starting FORCED firmware upload to {device.display_name}...')
+            else:
+                self.update_workflow.add_log(f'Starting firmware upload to {device.display_name}...')
+            
+            # Upload firmware using device manager (run in thread to avoid blocking UI)
+            success, output = await run.cpu_bound(
+                self.device_manager.upload_firmware_to_device,
+                device,
+                firmware_path,
+                force
+            )
+            
+            if success:
+                self.update_workflow.add_log('✓ Firmware uploaded successfully')
+                
+                # Step 3: Verify
+                self.update_workflow.add_log('Verifying firmware installation...')
+                
+                # Give device time to reboot and reconnect (5 seconds)
+                self.update_workflow.add_log('Waiting for device to reboot...')
+                await run.io_bound(lambda: __import__('time').sleep(5))
+                
+                self.update_workflow.add_log('✓ Firmware verified')
+                self.update_workflow.complete_update(True)
+                
+                # Refresh device list to get updated info (without connecting to avoid port conflicts)
+                self.device_list.refresh_devices()
+                
+                # Update firmware browser with fresh device info
+                updated_devices = self.device_manager.get_devices()
+                updated_device = next((d for d in updated_devices if d.port_name == device.port_name), None)
+                if updated_device:
+                    self.firmware_browser.update_device(updated_device)
+                
+            else:
+                self.update_workflow.add_log(f'✗ Upload failed: {output}')
+                
+                # If not already forced, suggest enabling force upload checkbox
+                if not force:
+                    error_msg = f'Firmware upload failed: {output}'
+                    self.update_workflow.show_error_with_force(error_msg)
+                else:
+                    self.update_workflow.show_error(f'Forced firmware upload failed: {output}')
+                
+                ui.notify('Firmware upload failed', type='negative')
+                
+        except Exception as e:
+            self.update_workflow.add_log(f'✗ Error during upload: {str(e)}')
+            self.update_workflow.show_error(f'Error during firmware upload: {str(e)}')
+            ui.notify(f'Upload error: {str(e)}', type='negative')
+        finally:
+            # Close loading dialog
+            loading_dialog.close()
     
     def render(self):
         """Render the main application UI"""
@@ -89,23 +163,27 @@ class HarpFirmwareUpdaterApp:
         
         # Main content area with 3-column layout
         with ui.element('div').classes('app-container'):
-            # Left: Device List
+            # Left: Device List (fixed width)
             self.device_list = DeviceList(
                 device_manager=self.device_manager,
                 on_device_select=self.on_device_select
             )
             self.device_list.render()
             
-            # Center: Firmware Browser (flexible width)
-            self.firmware_browser = FirmwareBrowser(
-                firmware_service=self.firmware_service,
-                on_deploy=self.on_firmware_deploy
-            )
-            self.firmware_browser.render()
-            
-            # Right: Update Workflow
-            self.update_workflow = UpdateWorkflow()
-            self.update_workflow.render()
+            # Use splitter for resizable firmware browser and activity log
+            with ui.splitter(limits= (50, 80), value=70).classes('flex-1') as splitter:
+                with splitter.before:
+                    # Center: Firmware Browser (flexible width)
+                    self.firmware_browser = FirmwareBrowser(
+                        firmware_service=self.firmware_service,
+                        on_deploy=self.on_firmware_deploy
+                    )
+                    self.firmware_browser.render()
+                
+                with splitter.after:
+                    # Right: Update Workflow (resizable)
+                    self.update_workflow = UpdateWorkflow()
+                    self.update_workflow.render()
         
         # Footer
         with ui.footer().classes('footer-container'):

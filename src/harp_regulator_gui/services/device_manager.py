@@ -131,7 +131,8 @@ class DeviceManager:
             target=target,
             force=force,
             no_interactive=True,
-            progress=True
+            progress=False,
+            verbose=force
         )
         
         return success, output
