@@ -37,7 +37,42 @@ class DeviceTable:
         
         # Search and filter state
         self.filter_type = "All types"
-    
+
+    def _get_deploy_eligibility(self) -> tuple[bool, Optional[str]]:
+        """Evaluate whether firmware deployment is currently allowed."""
+        devices = self.device_manager.get_devices()
+
+        if not devices:
+            return False, 'No devices available for firmware deployment'
+
+        bootloader_devices = [d for d in devices if d.state == 'Bootloader']
+        error_devices = [d for d in devices if d.state in ('DriverError', 'DeviceError')]
+
+        # Never allow deployment when any device is in error state.
+        if error_devices:
+            return False, 'Deployment blocked: one or more devices are in DeviceError state'
+
+        # Allow exactly one Bootloader device, but only to that specific device.
+        if len(bootloader_devices) == 1:
+            if not self.selected_device:
+                return False, 'Select the Bootloader device to deploy firmware'
+
+            bootloader_device = bootloader_devices[0]
+            if self.selected_device.port_name != bootloader_device.port_name:
+                return False, 'Deployment allowed only to the single Bootloader device'
+
+            if self.batch_update_checkbox and self.batch_update_checkbox.value:
+                return False, 'Batch update is not allowed when exactly one device is in Bootloader state'
+
+            return True, None
+
+        # If more than one device is in Bootloader, block all deployment.
+        if len(bootloader_devices) > 1:
+            return False, 'Deployment blocked: multiple devices are in Bootloader state'
+
+        return True, None
+
+
     def render(self):
         """Render the device table panel"""
         with ui.column().classes('device-table-container w-full mb-3'):
@@ -148,6 +183,10 @@ class DeviceTable:
         
         self.table.rows = rows
         self.table.update()
+
+        # Enable deploy button if firmware is selected
+        if self.firmware_file_path and self.selected_device:
+            self.deploy_button.set_enabled(True)
     
     def on_row_select(self, e):
         """Handle row selection"""
@@ -233,6 +272,11 @@ class DeviceTable:
         
         if not self.firmware_file_path:
             ui.notify('Please select a firmware file', type='warning')
+            return
+
+        can_deploy, blocked_reason = self._get_deploy_eligibility()
+        if not can_deploy:
+            ui.notify(blocked_reason, type='warning')
             return
         
         # Disable button during deployment
