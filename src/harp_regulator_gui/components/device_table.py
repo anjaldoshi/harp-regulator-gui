@@ -63,10 +63,10 @@ class DeviceTable:
                 columns=[
                     {'name': 'name', 'label': 'Device Name', 'field': 'name', 'align': 'left', 'sortable': True},
                     {'name': 'port', 'label': 'Port', 'field': 'port', 'align': 'left', 'sortable': True},
+                    {'name': 'kind', 'label': 'Kind', 'field': 'kind', 'align': 'left', 'sortable': True},
                     {'name': 'hardware', 'label': 'Hardware', 'field': 'hardware', 'align': 'left', 'sortable': True},
                     {'name': 'firmware', 'label': 'Firmware', 'field': 'firmware', 'align': 'left', 'sortable': True},
                     {'name': 'status', 'label': 'Status', 'field': 'status', 'align': 'left', 'sortable': True},
-                    {'name': 'actions', 'label': 'Actions', 'field': 'actions', 'align': 'center'},
                 ],
                 rows=[],
                 row_key='port',
@@ -79,12 +79,6 @@ class DeviceTable:
                     <q-badge :color="props.row.status_color">
                         {{ props.row.status }}
                     </q-badge>
-                </q-td>
-            ''')
-            
-            self.table.add_slot('body-cell-actions', '''
-                <q-td :props="props">
-                    <q-btn flat round dense icon="info" size="sm" @click="$parent.$emit('info', props.row)" />
                 </q-td>
             ''')
             
@@ -145,6 +139,7 @@ class DeviceTable:
             rows.append({
                 'name': device.display_name,
                 'port': device.port_name,
+                'kind': 'PICO' if device.kind == 'Pico' else (device.kind or 'Unknown'),
                 'hardware': f'v{device.hardware_version or "?"}',
                 'firmware': f'v{device.firmware_version or "?"}',
                 'status': device.health_status,
@@ -245,6 +240,9 @@ class DeviceTable:
         
         try:
             if self.on_deploy:
+                if self.selected_device.kind == 'Pico' or self.selected_device.kind == 'PICO':
+                    self.force_upload_checkbox.set_value(True)  # Force upload for Pico devices 
+                
                 force = self.force_upload_checkbox.value
                 batch_update = self.batch_update_checkbox.value
                 
@@ -260,3 +258,4 @@ class DeviceTable:
             # Re-enable button after deployment
             if self.selected_device and self.firmware_file_path:
                 self.deploy_button.set_enabled(True)
+                self.force_upload_checkbox.set_value(False)  # Reset force upload checkbox after operation
