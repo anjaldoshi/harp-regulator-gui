@@ -1,6 +1,6 @@
 import pytest
-from harp_regulator_gui.services.device_manager import DeviceManager
-from harp_regulator_gui.models.device import Device
+from harp_updater_gui.services.device_manager import DeviceManager
+from harp_updater_gui.models.device import Device
 
 
 @pytest.fixture

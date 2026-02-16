@@ -26,7 +26,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ```bash
 # Navigate to project directory
-cd harp-regulator-gui
+cd harp-updater-gui
 
 # Install dependencies and create virtual environment
 uv sync
@@ -38,7 +38,7 @@ That's it! All dependencies will be installed automatically.
 
 **Simple method:**
 ```bash
-uv run harp-regulator-gui
+uv run harp-updater-gui
 ```
 
 **Or using the run script:**
@@ -55,7 +55,7 @@ uv run python run.py
 source .venv/bin/activate
 
 # Then run
-python -m harp_regulator_gui.main
+python -m harp_updater_gui.main
 ```
 
 ## First Use
@@ -77,7 +77,7 @@ uv sync
 uv add <package-name>
 
 # Run the app
-uv run harp-regulator-gui
+uv run harp-updater-gui
 
 # Run tests
 uv run pytest
@@ -128,7 +128,7 @@ Set breakpoints in your IDE and run:
 ```bash
 # VS Code with Python extension
 # Or use Python debugger
-python -m pdb -m harp_regulator_gui.main
+python -m pdb -m harp_updater_gui.main
 ```
 
 ## Next Steps
@@ -146,7 +146,7 @@ python -m pdb -m harp_regulator_gui.main
 ## Project Structure Overview
 
 ```
-src/harp_regulator_gui/
+src/harp_updater_gui/
 ├── main.py              # Application entry point
 ├── components/          # UI components (NiceGUI)
 │   ├── header.py        # Top navigation bar

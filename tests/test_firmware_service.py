@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from harp_regulator_gui.services.firmware_service import FirmwareService
+from harp_updater_gui.services.firmware_service import FirmwareService
 
 
 @pytest.fixture

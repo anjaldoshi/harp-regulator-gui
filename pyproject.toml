@@ -1,5 +1,5 @@
 [project]
-name = "harp-regulator-gui"
+name = "harp-updater-gui"
 version = "0.1.0"
 description = "A GUI for managing Harp devices and updating firmware."
 authors = [
@@ -22,21 +22,21 @@ dev = [
 ]
 
 [project.scripts]
-harp-regulator-gui = "harp_regulator_gui.main:start_app"
+harp-updater-gui = "harp_updater_gui.main:start_app"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/harp-regulator-gui"
-Documentation = "https://github.com/yourusername/harp-regulator-gui#readme"
+Homepage = "https://github.com/yourusername/harp-updater-gui"
+Documentation = "https://github.com/yourusername/harp-updater-gui#readme"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/harp_regulator_gui"]
+packages = ["src/harp_updater_gui"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"src/harp_regulator_gui/static" = "harp_regulator_gui/static"
+"src/harp_updater_gui/static" = "harp_updater_gui/static"
 
 [dependency-groups]
 dev = [

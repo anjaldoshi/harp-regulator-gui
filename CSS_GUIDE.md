@@ -1,7 +1,7 @@
 # CSS Styling Guide
 
 ## Overview
-The HARP Firmware Updater GUI now uses a centralized CSS file (`src/harp_regulator_gui/static/styles.css`) for consistent styling across all components.
+The HARP Firmware Updater GUI now uses a centralized CSS file (`src/harp_updater_gui/static/styles.css`) for consistent styling across all components.
 
 ## CSS Variables
 Custom properties defined in `:root` for easy theming:
@@ -98,7 +98,7 @@ To customize the theme:
 
 ## File Structure
 ```
-src/harp_regulator_gui/
+src/harp_updater_gui/
 ├── static/
 │   └── styles.css          # Main stylesheet
 ├── components/

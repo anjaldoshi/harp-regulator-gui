@@ -1,6 +1,6 @@
 from typing import List, Optional, Dict, Any
-from harp_regulator_gui.services.cli_wrapper import CLIWrapper
-from harp_regulator_gui.models.device import Device
+from harp_updater_gui.services.cli_wrapper import CLIWrapper
+from harp_updater_gui.models.device import Device
 
 
 class DeviceManager:

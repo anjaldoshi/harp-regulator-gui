@@ -16,8 +16,8 @@ class Header:
         with ui.header().classes('header-container'):
              with ui.row().classes("w-full justify-between items-center"):
                 with ui.row().classes("items-center"):
-                    ui.icon("memory").classes("header-icon")
-                    ui.label('HARP Regulator GUI').classes('header-title')
+                    ui.image('/static/app_icon.png').classes("w-16")
+                    ui.label('Harp Updater GUI').classes('header-title')
                 with ui.row().classes("items-center gap-4"):
                     ui.label(f'Connected to {self.host_name}').classes('header-subtitle')
                     # Dark mode toggle button

@@ -10,12 +10,12 @@ import os
 import sys
 from pathlib import Path
 from nicegui import ui, app, run
-from harp_regulator_gui.components.header import Header
-from harp_regulator_gui.components.device_table import DeviceTable
-from harp_regulator_gui.components.update_workflow import UpdateWorkflow, LogLevel
-from harp_regulator_gui.services.device_manager import DeviceManager
-from harp_regulator_gui.services.firmware_service import FirmwareService
-from harp_regulator_gui.models.device import Device
+from harp_updater_gui.components.header import Header
+from harp_updater_gui.components.device_table import DeviceTable
+from harp_updater_gui.components.update_workflow import UpdateWorkflow, LogLevel
+from harp_updater_gui.services.device_manager import DeviceManager
+from harp_updater_gui.services.firmware_service import FirmwareService
+from harp_updater_gui.models.device import Device
 from typing import List
 
 # Get the path to the static directory
@@ -247,7 +247,7 @@ def start_app():
     # Run the application
     try:
         ui.run(
-            title='HARP Regulator GUI',
+            title='Harp Updater GUI',
             favicon='🔧',
             host="0.0.0.0",
             port=4277,

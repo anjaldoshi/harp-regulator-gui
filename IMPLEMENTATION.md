@@ -189,8 +189,8 @@ The interface features a modern, professional design with:
 ## 📁 Project Structure
 
 ```
-harp-regulator-gui/
-├── src/harp_regulator_gui/
+harp-updater-gui/
+├── src/harp_updater_gui/
 │   ├── __main__.py                # ✅ Entry point module
 │   ├── main.py                    # ✅ Application entry point
 │   ├── components/                # ✅ UI Components
@@ -231,11 +231,11 @@ curl -LsSf https://astral.sh/uv/install.sh | sh  # macOS/Linux
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"  # Windows
 
 # Setup project
-cd harp-regulator-gui
+cd harp-updater-gui
 uv sync
 
 # Run application
-uv run harp-regulator-gui
+uv run harp-updater-gui
 
 # Run tests
 uv run pytest

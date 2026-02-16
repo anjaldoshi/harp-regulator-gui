@@ -47,7 +47,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd harp-regulator-gui
+cd harp-updater-gui
 
 # Install dependencies and create virtual environment
 uv sync
@@ -65,19 +65,19 @@ source .venv/bin/activate
 
 Using uv (recommended):
 ```bash
-uv run harp-regulator-gui
+uv run harp-updater-gui
 ```
 
 Or with activated virtual environment:
 ```bash
-python -m harp_regulator_gui.main
+python -m harp_updater_gui.main
 ```
 
 ### Development Mode
 
 Run with auto-reload for development:
 ```bash
-uv run python -m harp_regulator_gui.main
+uv run python -m harp_updater_gui.main
 ```
 
 The application will open in your default web browser at `http://localhost:8080`.
@@ -85,9 +85,9 @@ The application will open in your default web browser at `http://localhost:8080`
 ## Project Structure
 
 ```
-harp-regulator-gui/
+harp-updater-gui/
 ├── src/
-│   └── harp_regulator_gui/
+│   └── harp_updater_gui/
 │       ├── __init__.py
 │       ├── main.py                    # Application entry point
 │       ├── components/                # UI components
@@ -131,7 +131,7 @@ uv add --dev <package-name>
 uv run pytest
 
 # Run with coverage
-uv run pytest --cov=harp_regulator_gui
+uv run pytest --cov=harp_updater_gui
 
 # Run specific test file
 uv run pytest tests/test_device_manager.py
@@ -168,7 +168,7 @@ HarpRegulator upload firmware.hex --target /dev/ttyUSB0 --force
 
 ## Configuration
 
-The application can be configured by modifying `src/harp_regulator_gui/utils/constants.py` or by setting environment variables (if implemented).
+The application can be configured by modifying `src/harp_updater_gui/utils/constants.py` or by setting environment variables (if implemented).
 
 ## Troubleshooting
 
