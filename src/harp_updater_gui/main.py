@@ -255,7 +255,7 @@ def start_app():
             reload=False,
             show=True,
             native=True,
-            window_size=(1200, 800),
+            window_size=(1200, 1000),
         )
     except KeyboardInterrupt:
         # Clean shutdown on Ctrl+C

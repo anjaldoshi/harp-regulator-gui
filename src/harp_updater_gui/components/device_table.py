@@ -34,6 +34,8 @@ class DeviceTable:
         self.batch_update_checkbox = None
         self.file_path_label = None
         self.deploy_button = None
+        self.connect_all_on_refresh_checkbox = None
+        self.connect_all_on_refresh = False
         
         # Search and filter state
         self.filter_type = "All types"
@@ -80,18 +82,24 @@ class DeviceTable:
             with ui.row().classes('w-full items-center justify-between gap-4'):
                 ui.label('Harp Devices').classes('text-2xl font-bold')
                 
-                with ui.row().classes('gap-2'):
+                with ui.row().classes('gap-4'):
                     # Search input with dynamic filtering
-                    search_input = ui.input(placeholder='Search devices...').classes('w-64')
+                    search_input = ui.input(placeholder='Search devices...').classes('w-48')
                     
                     # Filter dropdown
                     ui.select(
                         options=['All types', 'Pico', 'ATxmega', 'Healthy', 'Error'],
                         value='All types'
-                    ).classes('w-40').bind_value(self, 'filter_type').on('change', self.update_table)
+                    ).classes('w-36').bind_value(self, 'filter_type').on_value_change(self.update_table)
                     
                     # Refresh button
                     ui.button('🔄 Refresh', on_click=self.refresh_devices).classes('btn btn-secondary')
+
+            # Refresh behavior controls
+            with ui.row().classes('w-full items-center justify-end mb-2'):
+                self.connect_all_on_refresh_checkbox = ui.checkbox('Connect all')
+                self.connect_all_on_refresh_checkbox.bind_value(self, 'connect_all_on_refresh')
+                self.connect_all_on_refresh_checkbox.on_value_change(self.on_connect_all_refresh_toggle)
             
             # Device table
             self.table = ui.table(
@@ -144,17 +152,30 @@ class DeviceTable:
                     self.deploy_button.set_enabled(False)
             
             # Initial load
-            self.refresh_devices()
+            self.refresh_devices(show_notification=False)
     
-    def refresh_devices(self):
+    def refresh_devices(self, show_notification: bool = True):
         """Refresh device list from device manager"""
-        ui.notify('Checking for devices...', type='info')
+        if show_notification:
+            ui.notify('Checking for devices...', type='info')
         try:
-            devices = self.device_manager.refresh_devices()
+            devices = self.device_manager.refresh_devices(allow_connect=self.connect_all_on_refresh)
             self.update_table()
-            ui.notify(f'Found {len(devices)} device(s)', type='positive')
+            if show_notification:
+                ui.notify(f'Found {len(devices)} device(s)', type='positive')
         except Exception as e:
             ui.notify(f'Error: {str(e)}', type='negative')
+
+    def on_connect_all_refresh_toggle(self, e):
+        """Handle connect-on-refresh toggle changes."""
+
+        print(f"Connect on refresh set to: {self.connect_all_on_refresh}")
+
+        if self.connect_all_on_refresh:
+            ui.notify('Connect on refresh enabled', type='info')
+            self.refresh_devices(show_notification=False)
+        else:
+            ui.notify('Connect on refresh disabled', type='info')
     
     def update_table(self):
         """Update the device table with filtered data"""
