@@ -42,6 +42,20 @@ body.body--dark {
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
 }
 
+@font-face {
+  font-family: 'Geist Sans';
+  font-stretch: 90% 100%;
+  font-weight: 100 800;
+  src: url('../static/Geist-VariableFont_wght.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  font-stretch: 90% 100%;
+  font-weight: 100 800;
+  src: url('../static/GeistMono-VariableFont_wght.ttf') format('truetype');
+}
+
 /* ===================
    Global Layout
    =================== */
@@ -51,6 +65,7 @@ body, html {
     padding: 0;
     height: 100%;
     overflow: hidden;
+    font-family: 'Geist Sans', sans-serif;
 }
 
 .nicegui-content {
@@ -64,6 +79,10 @@ body, html {
     width: 100%;
 }
 
+.nicegui-log .q-scrollarea__content {
+    font-family: 'Geist Mono', monospace;
+}
+
 .app-container {
     display: flex;
     flex-direction: row;
@@ -74,7 +93,7 @@ body, html {
     height: 100%;
     background-color: var(--bg-secondary);
     overflow: hidden;
-    padding-bottom: 100px;
+    padding-bottom: 135px;
 }
 
 .app-container > .q-splitter {
@@ -220,6 +239,56 @@ body, html {
     padding: 1.5rem;
 }
 
+.firmware-upload-layout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.25rem;
+    margin-top: 1rem;
+}
+
+.firmware-upload-file-area {
+    flex: 1 1 360px;
+    min-width: 260px;
+    gap: 0.625rem;
+}
+
+.firmware-upload-file-row {
+    width: 100%;
+    min-width: 0;
+}
+
+.firmware-file-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.firmware-upload-actions {
+    flex: 0 0 280px;
+    min-width: 280px;
+    gap: 0.5rem;
+    align-self: stretch;
+}
+
+.firmware-deploy-btn {
+    /* align-self: flex-end; */
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 960px) {
+    .firmware-upload-actions {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+
+    .firmware-deploy-btn {
+        align-self: flex-start;
+    }
+}
+
 /* ===================
    Update Workflow
    =================== */
@@ -232,7 +301,6 @@ body, html {
     width: 100%;
     overflow: auto;
     box-sizing: border-box;
-    margin-bottom: 2rem;
 }
 
 .workflow-section {
@@ -256,8 +324,7 @@ body, html {
     background-color: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
-    font-family: 'Courier New', monospace;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     width: 100% !important;
     min-width: 0;
     min-height: 150px;
@@ -429,6 +496,10 @@ body.body--dark .log-debug {
 
 .text-secondary {
     color: var(--text-secondary);
+}
+
+.accent {
+    color: var(--q-accent);
 }
 
 .font-medium {

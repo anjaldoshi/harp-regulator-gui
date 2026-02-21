@@ -156,28 +156,24 @@ class DeviceTable:
                             "label": "Kind",
                             "field": "kind",
                             "align": "left",
-                            "sortable": True,
                         },
                         {
                             "name": "hardware",
                             "label": "Hardware",
                             "field": "hardware",
                             "align": "left",
-                            "sortable": True,
                         },
                         {
                             "name": "firmware",
                             "label": "Firmware",
                             "field": "firmware",
                             "align": "left",
-                            "sortable": True,
                         },
                         {
                             "name": "status",
                             "label": "Status",
                             "field": "status",
                             "align": "left",
-                            "sortable": True,
                         },
                     ],
                     rows=[],
@@ -210,23 +206,20 @@ class DeviceTable:
 
             # Firmware upload section
             with ui.card().classes("w-full p-4 firmware-upload-card"):
-                ui.label("Firmware Upload").classes("text-lg font-semibold mb-3")
+                ui.label("Firmware Upload").classes("text-lg font-semibold")
 
-                with ui.row().classes("w-full items-start gap-8"):
-                    # Column 1: File picker
-                    with ui.column().classes("flex-1 gap-2"):
+                with ui.row().classes("w-full firmware-upload-layout"):
+                    with ui.column().classes("firmware-upload-file-area"):
                         ui.label("Select Firmware File").classes("text-sm font-medium")
-                        with ui.row().classes("gap-2 items-center"):
+                        with ui.row().classes("items-center gap-3 firmware-upload-file-row"):
                             ui.button(
                                 "📁 Browse", on_click=self.browse_firmware
                             ).classes("btn btn-secondary")
                             self.file_path_label = ui.label("No file selected").classes(
-                                "text-sm text-secondary"
+                                "text-sm text-secondary firmware-file-label"
                             )
 
-                    # Column 2: Checkboxes and Deploy button
-                    with ui.column().classes("gap-2"):
-                        # Checkboxes
+                    with ui.column().classes("firmware-upload-actions"):
                         self.batch_update_checkbox = ui.checkbox(
                             "Update all devices with same name"
                         )
@@ -237,10 +230,9 @@ class DeviceTable:
                             "Force upload (bypass safety checks)"
                         )
 
-                        # Deploy button
                         self.deploy_button = ui.button(
                             "🚀 Deploy Firmware", on_click=self.deploy_firmware
-                        ).classes("btn btn-primary")
+                        ).classes("btn btn-primary firmware-deploy-btn")
                     self.deploy_button.set_enabled(False)
 
             # Initial load

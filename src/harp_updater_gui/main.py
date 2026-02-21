@@ -84,15 +84,6 @@ class HarpFirmwareUpdaterApp:
         self.device_table = None
         self.update_workflow = None
 
-    def on_device_select(self, device: Device):
-        """
-        Handle device selection
-
-        Args:
-            device: Selected device
-        """
-        # No longer needed with integrated table
-        pass
 
     async def on_firmware_deploy(
         self, devices: List[Device], firmware_path: str, force: bool = False
@@ -330,6 +321,9 @@ class HarpFirmwareUpdaterApp:
                     # Activity log
                     self.update_workflow = UpdateWorkflow()
                     self.update_workflow.render()
+
+                with splitter.separator:
+                    ui.icon(name="drag_indicator", size="sm", color="accent")
 
         # Footer
         with ui.footer().classes("footer-container"):
